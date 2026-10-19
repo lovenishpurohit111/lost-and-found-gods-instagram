@@ -15,7 +15,7 @@ REPOSITORY = "lost-and-found-gods-instagram"
 BRANCH = "main"
 CAROUSEL_DIRECTORY = "media/the-thursday-letter"
 API_VERSION = os.getenv("META_GRAPH_API_VERSION", "v25.0")
-API_BASE = f"https://graph.facebook.com/{API_VERSION}/"
+API_BASE = f"https://graph.instagram.com/{API_VERSION}/"
 
 
 def api_post(path: str, data: dict) -> dict:
@@ -128,3 +128,4 @@ if __name__ == "__main__":
     except Exception as exc:
         print(f"Publish failed: {exc}", file=sys.stderr)
         sys.exit(1)
+
