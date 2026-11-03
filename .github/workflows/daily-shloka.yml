@@ -41,6 +41,9 @@ jobs:
       - name: Select India-local verse and render card
         id: verse
         shell: bash
+        env:
+          GEMINI_API_KEY: ${{ secrets.GODS_GEMINI_KEY }}
+          GEMINI_MODEL: gemini-3.5-flash-lite
         run: |
           POST_DATE="$(python -c 'from datetime import datetime; from zoneinfo import ZoneInfo; print(datetime.now(ZoneInfo("Asia/Kolkata")).date().isoformat())')"
           echo "date=$POST_DATE" >> "$GITHUB_OUTPUT"
@@ -56,7 +59,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add "media/daily-shlokas/${{ steps.verse.outputs.date }}"
+          git add daily_shlokas.json "media/daily-shlokas/${{ steps.verse.outputs.date }}"
           if ! git diff --cached --quiet; then
             git commit -m "Prepare daily shloka ${{ steps.verse.outputs.date }}"
             git push
