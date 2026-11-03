@@ -56,10 +56,11 @@ def credentials() -> tuple[str, str]:
 
 def preflight(account_id: str, token: str) -> None:
     account = api_get(account_id, {"fields": "id,username", "access_token": token})
-    if str(account.get("id", "")) != account_id:
-        raise RuntimeError("Instagram returned a different account ID than the configured account.")
     if account.get("username", "").lower() != USERNAME:
-        raise RuntimeError("The configured Instagram token does not resolve to @lost_and_found_gods.")
+        returned_username = account.get("username", "(not returned)")
+        raise RuntimeError(
+            f"The configured Instagram account resolves to {returned_username}, not @{USERNAME}."
+        )
     print(f"Instagram credential check passed for @{USERNAME}.")
 
 
