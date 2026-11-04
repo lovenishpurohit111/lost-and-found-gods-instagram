@@ -4,6 +4,8 @@ on:
   schedule:
     # 9:17 AM India time; offset from the top of the hour to reduce queue delays.
     - cron: '47 3 * * *'
+    # Backup at 10:17 AM India time; the receipt check makes this safe after a successful first run.
+    - cron: '47 4 * * *'
   workflow_dispatch:
     inputs:
       publish:
@@ -62,7 +64,17 @@ jobs:
           git add daily_shlokas.json "media/daily-shlokas/${{ steps.verse.outputs.date }}"
           if ! git diff --cached --quiet; then
             git commit -m "Prepare daily shloka ${{ steps.verse.outputs.date }}"
-            git push
+            for attempt in 1 2 3 4; do
+              if git push; then
+                break
+              fi
+              if [[ "$attempt" -eq 4 ]]; then
+                exit 1
+              fi
+              sleep "$((attempt * 5))"
+              git fetch origin "$GITHUB_REF_NAME"
+              git rebase "origin/$GITHUB_REF_NAME"
+            done
           fi
 
       - name: Publish the scheduled post
@@ -88,5 +100,15 @@ jobs:
           git add "published/${{ steps.verse.outputs.date }}.json"
           if ! git diff --cached --quiet; then
             git commit -m "Record daily shloka publication ${{ steps.verse.outputs.date }}"
-            git push
+            for attempt in 1 2 3 4; do
+              if git push; then
+                break
+              fi
+              if [[ "$attempt" -eq 4 ]]; then
+                exit 1
+              fi
+              sleep "$((attempt * 5))"
+              git fetch origin "$GITHUB_REF_NAME"
+              git rebase "origin/$GITHUB_REF_NAME"
+            done
           fi
